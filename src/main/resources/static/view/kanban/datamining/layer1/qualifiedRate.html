@@ -1,0 +1,121 @@
+<!--
+    工序合格率（第一层）
+-->
+<meta charset="UTF-8">
+
+<!--jquery-->
+<script src="/js/jquery/jquery-3.4.1.min.js"></script>
+
+<!--bootstrap-->
+<link rel="stylesheet" type="text/css" href="/bootstrap-3.3.7-dist/css/bootstrap.min.css"/>
+<script src="/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+<!--echarts--->
+<script type="text/javascript" src="/js/echarts/echarts.js"></script>
+<script type="text/javascript" src="/js/echarts/dark.js"></script>
+
+<!--工序合格率-柱状图-->
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding: 0px;height: 100%;">
+    <div id="qualifiedRate"
+         style="width:100%;height:100%;border: 1px solid #0d2443;background-color: #010713;"></div>
+</div>
+
+<script>
+    /*报表图形创建*/
+    var chart = function () {
+        /*工序合格率柱状图*/
+        var qualifiedRateChart = echarts.init(document.getElementById('qualifiedRate'), 'dark');
+        var qualifiedRateOption = {
+            title: {
+                text: '工序合格率',
+                x: 'center',
+                y: '10px'
+            },
+            backgroundColor: '#010713',
+            color: ['#3398DB'],
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                    type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['触头支持装配', '基座组装', '机器人上料', '底座组装', '拧线圈螺钉', '拧黑螺丝', '接触板装配', '拧组合螺丝', '贴标', '参数测试'],
+                axisTick: {
+                    interval: 0,
+                    alignWithLabel: true
+
+                },
+                axisLabel: {    //柱状图底部字体换行
+                    formatter: function (val) {
+                        var str = "";
+                        var strAttr = val.split("");
+                        for (var i = 0; i < strAttr.length; i++) {
+                            str += i % 3 == 2 ? strAttr[i] + "\n" : strAttr[i];
+                        }
+                        return str;
+                    },
+                    textStyle: {
+                        fontSize: '10'
+                    }
+                }
+            },
+            yAxis: [
+                {
+                    axisLabel: {
+                        formatter: '{value} %'
+                    },
+                    splitLine: {
+                        show: false
+                    }
+                }
+
+            ],
+            series: [
+                {
+                    name: '直接访问',
+                    type: 'bar',
+                    barWidth: '60%',
+                    data: [99.78, 88.21, 89.99, 99.99, 100, 89.99, 98.00, 99.99, 89.00, 78.00],
+                    itemStyle: {
+                        normal: {
+                            label: {
+                                show: true,		    //柱状图开启显示数值
+                                position: 'top',	//在上方显示
+                                textStyle: {	    //数值样式
+                                    fontSize: 12
+                                },
+                                formatter: function (data) {
+                                    return data.data + "%";
+                                }
+                            }, color: new echarts.graphic.LinearGradient(0, 1, 0, 0, [{
+                                offset: 0,
+                                color: "#3398DB" // 0% 处的颜色
+                            }, {
+                                offset: 1,
+                                color: "#133b54" // 100% 处的颜色
+                            }], false)
+                        }
+                    }
+                }
+            ]
+        };
+        qualifiedRateChart.setOption(qualifiedRateOption);
+        /*将x轴参数存进缓存*/
+        window.sessionStorage.setItem("qualifiedRate", JSON.stringify(qualifiedRateOption.xAxis.data));
+
+        /*echarts 报表自适应*/
+        window.addEventListener("resize", function () {
+            qualifiedRateChart.resize();
+        });
+    };
+
+    chart();
+</script>

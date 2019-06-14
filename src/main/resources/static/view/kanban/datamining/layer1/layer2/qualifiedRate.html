@@ -1,0 +1,134 @@
+<!--
+    工序合格率（第二层）
+-->
+<meta charset="UTF-8">
+
+<!--jquery-->
+<script src="/js/jquery/jquery-3.4.1.min.js"></script>
+
+<!--bootstrap-->
+<link rel="stylesheet" type="text/css" href="/bootstrap-3.3.7-dist/css/bootstrap.min.css"/>
+<script src="/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+<!--echarts--->
+<script type="text/javascript" src="/js/echarts/echarts.js"></script>
+<script type="text/javascript" src="/js/echarts/dark.js"></script>
+
+<!--工序合格率-折线图-->
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding: 0px;height: 100%;">
+    <div id="qualifiedRate"
+         style="width:100%;height:100%;border: 1px solid #0d2443;background-color: #010713;"></div>
+</div>
+
+
+<script>
+    /*报表图形创建*/
+    var chart = function () {
+        /*产线日计划折线图*/
+        var qualifiedRateChart = echarts.init(document.getElementById('qualifiedRate'), 'dark');
+        var qualifiedRateOption = {
+            title: {
+                text: '工序小时合格率\n铆合工序',
+                x: 'center',
+                y: '10px'
+            },
+            backgroundColor: '#010713',
+            tooltip: {
+                trigger: 'axis'
+            },
+            splitLine: {
+                show: false
+            },
+            legend: {
+                data: ['实际达成'],
+                x: 'right',
+                y: '20px'
+            },
+            xAxis: {
+                type: 'category',
+                name: '单位/小时',
+                boundaryGap: false,
+                data: ['8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'],
+                splitLine: {
+                    show: false
+                }
+
+            },
+            yAxis: {
+                type: 'value',
+                name: '单位/台',
+                axisLabel: {
+                    formatter: '{value}'
+                },
+                splitLine: {
+                    show: false
+                }
+            },
+            series: [{
+                name: '实际达成',
+                type: 'line',
+                data: [600, 0],
+                itemStyle: {
+                    normal: {
+                        color: '#1d8398'
+                    }
+                },
+                markPoint: {
+                    data: [{
+                        type: 'max',
+                        name: '最大值'
+                    },
+                        {
+                            type: 'min',
+                            name: '最小值'
+                        },
+                        {
+                            type: 'average',
+                            name: '平均值'
+                        }
+                    ]
+                },
+                areaStyle: {
+                    normal: {
+                        //color: '#954e52' //改变区域颜色
+                        //渐变颜色
+                        color: new echarts.graphic.LinearGradient(
+                            0, 0, 0, 1, [{
+                                offset: 0,
+                                color: '#69b7cd'
+                            },
+                                {
+                                    offset: 0.4,
+                                    color: '#22585c'
+                                },
+                                {
+                                    offset: 1,
+                                    color: '#0e0812'
+                                }
+                            ]
+                        )
+                    }
+                },
+                markLine: {
+                    data: [{
+                        yAxis: '600',
+                        name: '600'
+                    },
+
+                    ]
+                }
+            }]
+        };
+        qualifiedRateChart.setOption(qualifiedRateOption);
+
+        /*将x轴参数存进缓存*/
+        window.sessionStorage.setItem("qualifiedRate", JSON.stringify(qualifiedRateOption.xAxis.data));
+
+        /*echarts 报表自适应*/
+        window.addEventListener("resize", function () {
+            qualifiedRateChart.resize();
+        });
+    };
+
+    chart();
+</script>

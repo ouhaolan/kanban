@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>移动终端</title>
+</head>
+<style type="text/css">
+    * {
+        margin: 0px;
+        padding: 0px;
+    }
+
+    .divs {
+        margin-top: 24px;
+        font-weight: bold;
+        padding-bottom: 20px;
+        border-bottom: 1px dotted black;
+    }
+
+    #button button {
+        height: 100px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    /*自适应：大桌面显示器（大桌面,小于等于1400px）*/
+    @media (max-width: 1400px) {
+        canvas {
+            width: 100%;
+        }
+    }
+
+    /* 大屏幕（大桌面显示器，大于等于 1200px） */
+    @media (min-width: 1400px) {
+
+    }
+</style>
+<link rel="stylesheet" type="text/css" href="/bootstrap-3.3.7-dist/css/bootstrap.min.css"/>
+
+<script src="/js/jquery/jquery-3.4.1.min.js"></script>
+<script src="/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+<script src="/js/vue/vue.js"></script>
+<script src="/js/util/utils.js"></script>
+<body>
+<div class="row">
+    <p style="font-size: 24px;font-weight:bold; text-align: center;margin-top: 10px;">车间综合看板控制界面</p>
+</div>
+<div id="vueDiv">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="button">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 divs"
+             v-for="(item) in list">
+            <button type="button" class="btn btn-default col-xs-5 col-sm-5 col-md-5 col-lg-5 font-size40"
+                    v-text="item.list[item.index].name" @click="drilling(item.modular)">
+            </button>
+            <button type="button"
+                    class="btn btn-default col-xs-push-2 col-sm-push-2 col-md-push-2 col-lg-push-2 col-xs-5 col-sm-5 col-md-5 col-lg-5 font-size40"
+                    @click="returnUrl(item.modular)">
+                返回
+            </button>
+        </div>
+    </div>
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true"
+         style="margin-top: 200px;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="modalLabel" style="">数据挖掘</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="padding: 10px 0px 10px 0px;">
+                            <div style="text-align: right;">挖掘条件：</div>
+                        </div>
+                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8" style="position:relative;">
+                            <select class="form-control">
+                                <option v-for="(item) in xAxis" v-text="item"></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" @click="onSubmit()">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+    //服务器地址
+    var locate = window.location;
+    var path = window.location.search;//获取传递的参数
+    var loginUUID = path.substr(path.indexOf("?") + 1, path.length);
+
+    var vm = new Vue({
+        el: "#vueDiv",		//渲染的dom,填写id选择器
+        data: {			    //数据类型
+            list: {
+                "productionlinedateplan": {
+                    "index": 0,
+                    "modular": "productionlinedateplan",
+                    "list": [
+                        {
+                            "name": "质量问题查询",
+                            "url": "/view/kanban/datamining/layer1/productionlinedateplan.html"
+                        },
+                        {
+                            "name": "质量问题挖掘",
+                            "url": "/view/kanban/datamining/layer1/layer2/productionlinedateplan.html"
+                        }
+                    ]
+                },
+                "qualifiedRate": {
+                    "index": 0,
+                    "modular": "qualifiedRate",
+                    "list": [
+                        {
+                            "name": "生产问题查询",
+                            "url": "/view/kanban/datamining/layer1/qualifiedRate.html"
+                        },
+                        {
+                            "name": "生产问题挖掘",
+                            "url": "/view/kanban/datamining/layer1/layer2/qualifiedRate.html"
+                        },
+                        {
+                            "name": "生产问题挖掘",
+                            "url": "/view/kanban/datamining/layer1/layer2/layer3/qualifiedRate.html"
+                        }
+                    ]
+                },
+                "workingprocedureoee": {
+                    "index": 0,
+                    "modular": "workingprocedureoee",
+                    "list": [
+                        {
+                            "name": "设备问题查询",
+                            "url": "/view/kanban/datamining/layer1/workingprocedureoee.html"
+                        },
+                        {
+                            "name": "设备问题挖掘",
+                            "url": "/view/kanban/datamining/layer1/layer2/workingprocedureoee.html"
+                        },
+                        {
+                            "name": "设备问题挖掘",
+                            "url": "/view/kanban/datamining/layer1/layer2/layer3/workingprocedureoee.html"
+                        }
+                    ]
+                }
+            },
+            xAxis: [],
+            modalModular: ""
+        },
+        created: function () {
+            this.getXAxisSocket();
+            this.setItems(0);
+            this.kanbanLogin();
+        },
+        methods: {
+            getXAxisSocket: function () {
+                var vm = this;
+                /*接收移动终端二维码*/
+                websocket("ws://" + locate.hostname + ":" + locate.port + "/KanbanxAxisSocket", null, function (result) {
+                    if (result.data == "null") return;
+                    var obj = JSON.parse(result.data);
+                    vm.xAxis = obj;
+                    $("#modal").modal("show");
+                });
+            },
+            setItems: function (index) {
+                this.items = this.list[index];
+            },
+            onSubmit: function () {
+                $("#modal").modal("hide");
+                this.updateUrl("url", this.modalModular, this.list[this.modalModular].list[this.list[this.modalModular].index].url);
+            },
+            kanbanLogin: function () {      //看板登录
+                $.getJSON('/kanbancontr/KanBanController/loginKanban', {'uuid': loginUUID}, function (result) {
+                    if (result['code'] == 200) return;
+                    $("body").html("<p style=\"font-size: 24px;font-weight:bold; text-align: center;\">请扫码进行登录！</p>");
+                });
+            },
+            returnUrl: function (modular) {
+                if (this.list[modular].index == 0) return;
+                this.list[modular].index -= 1;
+                this.updateUrl("url", this.modalModular, this.list[this.modalModular].list[this.list[this.modalModular].index].url);
+            },
+            drilling: function (modular) {
+                this.modalModular = modular;
+                if (this.list[modular].index == this.list[modular].list.length - 1) return;
+
+                this.updateUrl("xAxis", modular, null);
+                this.list[modular].index += 1;
+            },
+            updateUrl: function (type, modular, url) {                  //控制看板切换路径 获取看板x轴参数
+                var vm = this;
+                $.getJSON("/kanbancontr/KanBanController/handoffPage", {
+                    'type': type,
+                    'modular': modular,
+                    'url': url,
+                    'uuid': loginUUID
+                }, function (result) {
+                    switch (result['code']) {
+                        case 404:
+                            $("body").html("<p style=\"font-size: 24px;font-weight:bold; text-align: center;\">" +
+                                "您已被挤下线！请重新扫码！</p>");
+                            break;
+                        default:
+                            break;
+                    }
+                });
+            }
+        }
+    });
+</script>
+</html>

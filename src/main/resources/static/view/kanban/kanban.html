@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>车间看板</title>
+</head>
+<!--css-->
+<link rel="stylesheet" type="text/css" href="/bootstrap-3.3.7-dist/css/bootstrap.min.css"/>
+
+<!--js-->
+<script src="/js/jquery/jquery-3.4.1.min.js"></script>
+<script src="/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+<script src="/js/util/utils.js"></script>
+
+<style>
+    * {
+        margin: 0px;
+        padding: 0px;
+    }
+
+    body {
+        background-color: #061125;
+        color: #fafcfb;
+    }
+
+    #kanbanName {
+        height: 80px;
+        line-height: 80px;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        margin: 0px;
+        padding: 0px;
+    }
+
+    iframe {
+        height: 50%;
+    }
+
+    /* 自适应：小屏幕 (小于等于768px) max:小于等于 min:大于等于 */
+    @media (max-width: 768px) {
+        h4 {
+            display: none;
+        }
+
+        #kanbanName {
+            font-size: 14px;
+        }
+
+        .phone {
+            display: none;
+        }
+    }
+
+    /* 自适应：中等屏幕（桌面显示器，小于等于 992px） */
+    @media (max-width: 992px) {
+        h4 {
+            display: none;
+        }
+
+        #kanbanName {
+            font-size: 14px;
+        }
+
+        .phone {
+            display: none;
+        }
+    }
+
+    /*自适应：大桌面显示器（大桌面,小于等于1400px）*/
+    @media (max-width: 1400px) {
+        h4 {
+            display: none;
+        }
+
+        #kanbanName {
+            font-size: 20px;
+        }
+
+        .phone {
+            display: none;
+        }
+    }
+
+    /* 大屏幕（大桌面显示器，大于等于 1200px） */
+    @media (min-width: 1400px) {
+        h4 {
+            display: block;
+        }
+
+        #kanbanName {
+            font-size: 30px;
+        }
+
+        .phone {
+            display: block;
+        }
+    }
+</style>
+<body>
+<div id="head" class="container-fluid"
+     style="width: 100%;height: 80px;text-align: center;border-bottom: 1px solid #0d2443">
+    <div class="row">
+        <div class="col-xs-5 col-sm-3 col-md-4 col-lg-3" style="padding: 5px 10px 0px 5px;">
+            <img id="logo" src="/img/chint.png" width="90px" height="70px" style="float: left;">
+            <img id="qrcodeImg" width="70px" height="70px" style="float: left;"/>
+        </div>
+        <div class="col-xs-7 col-sm-6 col-md-5 col-lg-6" style="text-align: center">
+            <h2 id="kanbanName"></h2>
+        </div>
+        <div class="col-xs-0 col-sm-0 col-md-3 col-lg-3 phone" style="text-align: center;padding: 0px;margin: 0px;">
+            <h5 style="line-height: 80px">当前时间：<span id="datetime"></span></h5>
+        </div>
+    </div>
+</div>
+<div id="part" class="container-fluid">
+    <div class="row" style="padding: 0px;height: 100%;">
+        <iframe id="totaldata" class="col-xs-12 col-sm-12 col-md-6 col-lg-6" src="datamining/layer1/totaldata.html"
+                frameborder="0"
+                style="border: none;padding: 5px;"></iframe>
+        <iframe id="productionlinedateplan" class="col-xs-12 col-sm-12 col-md-6 col-lg-6"
+                src="datamining/layer1/productionlinedateplan.html"
+                frameborder="0"
+                style="border: none;padding: 5px;"></iframe>
+        <iframe id="qualifiedRate" class="col-xs-12 col-sm-12 col-md-6 col-lg-6"
+                src="datamining/layer1/qualifiedRate.html"
+                frameborder="0"
+                style="border: none;padding: 5px;"></iframe>
+        <iframe id="workingprocedureoee" class="col-xs-12 col-sm-12 col-md-6 col-lg-6"
+                src="datamining/layer1/workingprocedureoee.html"
+                frameborder="0"
+                style="border: none;padding: 5px;"></iframe>
+    </div>
+</div>
+</body>
+<script>
+    //服务器地址
+    var locate = window.location;
+
+
+    var init = function () {
+        /*看板时间*/
+        setInterval(function () {
+            document.getElementById('datetime').innerText = format(new Date(), 'yyyy年MM月dd日 HH:mm:ss');
+        }, 1000);
+
+        /*设置主体自适应高度*/
+        var headHeight = document.getElementById('head').style.height;
+        document.getElementById('part').style.height = window.innerHeight - parseInt(headHeight) + "px";
+
+        /*设置看板名称*/
+        document.getElementById('kanbanName').innerText = "CJX2自动化产线生产报表";
+
+        /*获取移动终端二维码*/
+        $.getJSON("/kanbancontr/QRCodeController/kanbanQRCode", null, function (result) {
+            $("#qrcodeImg").attr("src", result.data);
+        });
+
+        /*接收移动终端二维码*/
+        websocket("ws://" + locate.hostname + ":" + locate.port + "/KanbanQrcodeSocket", null, function (result) {
+            $("#qrcodeImg").attr("src", result.data);
+        });
+
+    };
+
+    /*接收移动终端URL*/
+    var getXAxisSocket = websocket("ws://" + locate.hostname + ":" + locate.port + "/KanbanContrSocket", null, function (result) {
+        var jsonObj = JSON.parse(result.data);
+        if (jsonObj.type == "url") {
+            $("#" + jsonObj.modular).attr("src", jsonObj.url);
+        } else if (jsonObj.type == "xAxis") {
+            var modular = window.sessionStorage.getItem(jsonObj.modular);
+            getXAxisSocket.send(modular);
+        } else if(jsonObj.type == "refresh"){
+            window.location.reload();
+        }
+    });
+    init();
+</script>
+</html>
